@@ -8,7 +8,7 @@ import (
 )
 
 type Rows struct {
-	daoData int
+	DaoData int
 }
 
 type DaoError error
@@ -34,5 +34,5 @@ func DaoQuery(_sql string) (rows *Rows, err error) {
 		return nil, ErrMap[err]
 	}
 
-	return &Rows{daoData: dbRows.Data}, nil
+	return &Rows{DaoData: dbRows.Data}, nil
 }
