@@ -8,23 +8,33 @@ import (
 
 func main() {
 
+	// Service查询函数第二个参数100-200之间为正常数据库查询;
+	// 0-100为NoRows查询;
+	// 其他数据为未定义行为.
+
 	// Service 层错误
+	// 正常查询数据，err1为nil
 	err1 := Service("Service_1", 102, 3)
 	fmt.Printf("---------------\n%v\n----------------", err1)
 
+	// 正常Dao数据查询，Service层处理后出错，报Service层错误1
 	err2 := Service("Service_1", 102, 0)
 	fmt.Printf("---------------\n%v\n----------------", err2)
 
+	// 正常Dao数据查询，Service层处理后出错，报Service层错误2
 	err3 := Service("Service_2", 103, 3)
 	fmt.Printf("---------------\n%v\n----------------", err3)
 
+	// 正常Dao数据查询，Service层处理后出错，报Service层错误3
 	err4 := Service("Service_3", 104, 3)
 	fmt.Printf("---------------\n%v\n----------------", err4)
 
 	// Dao层错误
+	// Dao数据查询出错，Service层无法处理，封装后告知调用者下层错误
 	err5 := Service("Dao_1", 99, 0)
 	fmt.Printf("---------------\n%v\n----------------", err5)
 
+	// Dao数据查询出错，Service层已处理，不告知上层
 	err6 := Service("Dao_2", 200, 0)
 	fmt.Printf("---------------\n%v\n----------------", err6)
 
@@ -61,6 +71,9 @@ func Service(callerIdent string, sql int, expectMod int) (err error) {
 
 	rows, err := DaoQuery(sql)
 	if err != nil {
+		if errors.Is(err, ErrDaoOther) {
+			panic(err)
+		}
 		return errors.Wrapf(err, "Caller:%s", callerIdent)
 	}
 	return OkHandler(rows, expectMod)
@@ -114,7 +127,7 @@ type DBRows struct {
 func DBQuery(sql int) (result *DBRows, err error) {
 	if sql >= 100 && sql < 200 {
 		return &DBRows{sql}, nil
-	} else if sql > 0 && sql < 100 {
+	} else if sql >= 0 && sql < 100 {
 		return nil, ErrDBNoRows
 	} else {
 		return nil, ErrDBOther
