@@ -30,12 +30,12 @@ func main() {
 	fmt.Printf("---------------\n%v\n----------------", err4)
 
 	// Dao层错误
-	// Dao数据查询出错，Service层无法处理，封装后告知调用者下层错误
-	err5 := Service("Dao_1", 99, 0)
+	// Dao数据查询出错(ErrDaoOther)，Service层无法处理，封装后告知调用者下层错误
+	err5 := Service("Dao_1", 200, 0)
 	fmt.Printf("---------------\n%v\n----------------", err5)
 
-	// Dao数据查询出错，Service层已处理，不告知上层
-	err6 := Service("Dao_2", 200, 0)
+	// Dao数据查询出错(ErrDaoNoRow)，Service层已处理，不告知上层
+	err6 := Service("Dao_2", 99, 0)
 	fmt.Printf("---------------\n%v\n----------------", err6)
 
 }
@@ -71,7 +71,7 @@ func Service(callerIdent string, sql int, expectMod int) (err error) {
 
 	rows, err := DaoQuery(sql)
 	if err != nil {
-		if errors.Is(err, ErrDaoOther) {
+		if errors.Is(err, ErrDaoNoRow) {
 			fmt.Printf("\nService handled err: %v \n", err)
 			return nil
 		}
