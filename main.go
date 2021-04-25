@@ -72,7 +72,8 @@ func Service(callerIdent string, sql int, expectMod int) (err error) {
 	rows, err := DaoQuery(sql)
 	if err != nil {
 		if errors.Is(err, ErrDaoOther) {
-			panic(err)
+			fmt.Printf("\nService handled err: %v \n", err)
+			return nil
 		}
 		return errors.Wrapf(err, "Caller:%s", callerIdent)
 	}
